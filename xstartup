@@ -63,7 +63,7 @@ else
 	set --
 fi
 # Add some additional sane choices as fallback.
-set -- "$@" icewm fluxbox jwm
+set -- "$@" icewm fluxbox jwm blackbox mwm twm
 CMD=/bin/false
 for xs
 do
