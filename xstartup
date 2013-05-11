@@ -1,4 +1,7 @@
 #! /bin/sh
+# (c) 2013 by Guenther Brunthaler.
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
 
 # Prepare environment.
 for unnll50vwub2yhksp08ygh9hm in .bash_profile .bash_login .profile .bashrc
@@ -11,7 +14,7 @@ do
 	fi
 done
 unset unnll50vwub2yhksp08ygh9hm
-xrdb load "$HOME/.Xresources"
+xrdb "$HOME/.Xresources"
 xsetroot -solid grey
 
 : ${XSESSION:=jwm}
