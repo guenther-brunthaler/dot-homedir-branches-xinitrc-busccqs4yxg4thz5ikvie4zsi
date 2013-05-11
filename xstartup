@@ -1,0 +1,39 @@
+#! /bin/sh
+
+# Prepare environment.
+for unnll50vwub2yhksp08ygh9hm in .bash_profile .bash_login .profile .bashrc
+do
+	unnll50vwub2yhksp08ygh9hm=$HOME/$unnll50vwub2yhksp08ygh9hm
+	if test -f "$unnll50vwub2yhksp08ygh9hm"
+	then
+		. "$unnll50vwub2yhksp08ygh9hm"
+		break
+	fi
+done
+unset unnll50vwub2yhksp08ygh9hm
+xrdb load "$HOME/.Xresources"
+xsetroot -solid grey
+
+: ${XSESSION:=jwm}
+if
+	test x"${XSESSION%/*}" != x"$XSESSION" && test -x "$XSESSION"
+then
+	CMD=$XSESSION
+else
+	CMD=/bin/false
+fi
+for bindir in /etc/X11/Sessions /usr/bin
+do
+	cmd=$bindir/$XSESSION
+	if test -x "$cmd"
+	then
+		CMD=$cmd
+		break
+	fi
+done
+
+# Run window manager.
+"$CMD" || xterm -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop"
+
+# Stop X11 server.
+exec vncserver -kill "$DISPLAY"
