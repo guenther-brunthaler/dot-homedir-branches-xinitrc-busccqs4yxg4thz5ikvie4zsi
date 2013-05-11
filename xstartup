@@ -14,29 +14,86 @@ do
 	fi
 done
 unset unnll50vwub2yhksp08ygh9hm
-xrdb "$HOME/.Xresources"
+
+# Start X clipboard / X selection transfer helper.
+if vncconfig -iconic 2> /dev/null &
+then
+	helper_pid=$!
+else
+	helper_pid=
+fi
+
+# Ensure that the WM or SM instances started for the new VNC server are
+# independent from those running at the host. Clear out the environment
+# variables WM and SM uses to locate already-running instances, hopefully
+# allowing us to start new independent instances.
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+
+# SuSE specific stuff.
+OS=`uname -s`
+if test x"$OS" = x"Linux"
+then
+	case $WINDOWMANAGER in
+		*gnome*)
+			if test -e /etc/SuSE-release && test -d /opt/gnome/bin
+			then
+				PATH=$PATH:/opt/gnome/bin
+				export PATH
+			fi
+	esac
+fi
+
+# Merge preset X resources.
+if test -f "$HOME/.Xresources"
+then
+	xrdb "$HOME/.Xresources"
+fi
+
+# Set a gray background as default. Fancy WMs and SMs will replace the
+# background with their own wallpapers anyway.
 xsetroot -solid grey
 
-: ${XSESSION:=jwm}
-if
-	test x"${XSESSION%/*}" != x"$XSESSION" && test -x "$XSESSION"
+# Find the WM or SM to execute. A user-provided XSESSION has the highest
+# priority.
+if test -n "$XSESSION"
 then
-	CMD=$XSESSION
+	set -- "$XSESSION"
 else
-	CMD=/bin/false
+	set --
 fi
-for bindir in /etc/X11/Sessions /usr/bin
+# Add some additional sane choices as fallback.
+set -- "$@" icewm fluxbox jwm
+CMD=/bin/false
+for xs
 do
-	cmd=$bindir/$XSESSION
-	if test -x "$cmd"
+	if
+		test x"${xs%/*}" != x"$xs" && test -x "$xs"
 	then
-		CMD=$cmd
+		CMD=$xs
+		test -n "$XSESSION" && XSESSION=$xs
 		break
 	fi
+	for bindir in /etc/X11/Sessions /usr/bin
+	do
+		cmd=$bindir/$xs
+		if test -x "$cmd"
+		then
+			CMD=$cmd
+			test -n "$XSESSION" && XSESSION=$xs
+			break 2
+		fi
+	done
 done
+test -n "$XSESSION" && export XSESSION
 
 # Run window manager.
 "$CMD" || xterm -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop"
 
 # Stop X11 server.
+if test -n "$helper_pid"
+then
+	kill "$helper_pid"
+	sleep 1
+fi
 exec vncserver -kill "$DISPLAY"
