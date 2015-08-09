@@ -4,7 +4,10 @@
 # Distribution is permitted under the terms of the GPLv3.
 
 # Prepare environment.
-for unnll50vwub2yhksp08ygh9hm in .bash_profile .bash_login .profile .bashrc
+set .bash_profile .bash_login .profile .bashrc
+test -n "$BASH_VERSION" && test -n "$BASH_ENV" && set "$@" "$BASH_ENV"
+test -n "$ENV" && set "$@" "$ENV"
+for unnll50vwub2yhksp08ygh9hm
 do
 	unnll50vwub2yhksp08ygh9hm=$HOME/$unnll50vwub2yhksp08ygh9hm
 	if test -f "$unnll50vwub2yhksp08ygh9hm"
